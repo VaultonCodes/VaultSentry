@@ -1,30 +1,33 @@
 import { createApp } from 'vue';
-import ArcoVue from '@arco-design/web-vue';
-import ArcoVueIcon from '@arco-design/web-vue/es/icon';
-import globalComponents from '@/components';
-import router from './router';
-import directive from './directive';
-import './mock';
+import ElementPlus from 'element-plus';
+import * as ElementPlusIconsVue from '@element-plus/icons-vue';
+import Components from '@/components/index.ts';
+import Directives from '@/directives/index';
 import App from './App.vue';
-import store from './store';
-import globalErrorHandler from '@/utils/monitor';
+import pinia from './stores/index.ts';
+import router from './routers';
+import 'element-plus/dist/index.css';
+import 'element-plus/theme-chalk/dark/css-vars.css';
+import 'virtual:svg-icons-register';
+import 'animate.css';
+import '@/styles/index.scss';
+import 'uno.css';
+
+// 创建app
 const app = createApp(App);
-import '@/assets/style/global.less';
-import '@/assets/style/layout.less';
-import '@/assets/style/chart.less';
-import '@/assets/style/arco-extends.less';
-import '@/api/interceptor';
-app.use(ArcoVue, {});
-
+// 注册ElementPlus
+app.use(ElementPlus);
+// 注册ElementPlus所有图标
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component);
+}
+// 注册路由
 app.use(router);
-app.use(store);
-app.use(globalComponents);
-app.use(directive);
-
-// 全局异常处理
-globalErrorHandler(app);
-app.use(ArcoVueIcon);
-
-
-
+// 注册pinia
+app.use(pinia);
+// 注册自定义组件
+app.use(Components);
+// 注册全局自定义指令
+app.use(Directives);
+// 挂载
 app.mount('#app');
