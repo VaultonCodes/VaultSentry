@@ -1,11 +1,8 @@
 <script setup lang="ts" name="operlogPage">
 import { onMounted, ref } from 'vue';
-// @ts-ignore
 import { batchDelete, deleteById, getById, getDetailById, listPage } from '@/api/system/operlog/index.ts';
-import { koiMsgBox, koiMsgError, koiMsgInfo, koiMsgWarning, koiNoticeError, koiNoticeSuccess } from '@/utils/koi.ts';
-// @ts-ignore
-import { koiDatePicker } from '@/utils/index.ts';
-// @ts-ignore
+import { MsgBox, MsgError, MsgInfo, MsgWarning, NoticeError, NoticeSuccess } from '@/utils/message.ts';
+import { datePicker } from '@/utils/index.ts';
 
 // 表格加载动画Loading
 const loading = ref(false);
@@ -41,7 +38,7 @@ const tableList = ref<any>([
     requestMethod: 'GET',
     systemType: 'PHONE',
     operMan: 'YU-ADMIN/超级管理员',
-    operUrl: '/koi/sysLoginLog/listPage',
+    operUrl: '/api/sysLoginLog/listPage',
     operIp: '127.0.0.1',
     operLocation: '内网IP，无法获取位置',
     operParam:
@@ -61,7 +58,7 @@ const tableList = ref<any>([
     requestMethod: 'GET',
     systemType: 'PHONE',
     operMan: 'YU-ADMIN/超级管理员',
-    operUrl: '/koi/sysLoginLog/listPage',
+    operUrl: '/api/sysLoginLog/listPage',
     operIp: '127.0.0.1',
     operLocation: '内网IP，无法获取位置',
     operParam:
@@ -121,27 +118,27 @@ const handleListPage = async () => {
   // try {
   //   loading.value = true;
   //   tableList.value = []; // 重置表格数据
-  //   const res: any = await listPage(koiDatePicker(searchParams.value, dateRange.value));
+  //   const res: any = await listPage(datePicker(searchParams.value, dateRange.value));
   //   console.log("操作日志数据表格数据->", res.data);
   //   tableList.value = res.data.records;
   //   total.value = res.data.total;
   //   loading.value = false;
   // } catch (error) {
   //   console.log(error);
-  //   koiNoticeError("数据查询失败，请刷新重试");
+  //   NoticeError("数据查询失败，请刷新重试");
   // }
 };
 
 /** 数据表格[删除、批量删除等刷新使用] */
 const handleTableData = async () => {
   try {
-    const res: any = await listPage(koiDatePicker(searchParams.value, dateRange.value));
+    const res: any = await listPage(datePicker(searchParams.value, dateRange.value));
     console.log('操作日志数据表格数据->', res.data);
     tableList.value = res.data.records;
     total.value = res.data.total;
   } catch (error) {
     console.log(error);
-    koiNoticeError('数据查询失败，请刷新重试');
+    NoticeError('数据查询失败，请刷新重试');
   }
 };
 
@@ -172,46 +169,46 @@ const handleSelectionChange = (selection: any) => {
 const handleDelete = (row: any) => {
   const id = row.operId;
   if (id == null || id == '') {
-    koiMsgWarning('请选择需要删除的数据');
+    MsgWarning('请选择需要删除的数据');
   }
-  koiMsgBox(`您确认需要删除操作名称[${row.operName}]么？`)
+  MsgBox(`您确认需要删除操作名称[${row.operName}]么？`)
     .then(async () => {
       try {
         await deleteById(id);
         handleTableData();
-        koiNoticeSuccess('删除成功');
+        NoticeSuccess('删除成功');
       } catch (error) {
         console.log(error);
         handleTableData();
-        koiNoticeError('删除失败，请刷新重试');
+        NoticeError('删除失败，请刷新重试');
       }
     })
     .catch(() => {
-      koiMsgError('已取消');
+      MsgError('已取消');
     });
 };
 
 /** 批量删除 */
 const handleBatchDelete = () => {
   if (ids.value.length == 0) {
-    koiMsgInfo('请选择需要删除的数据');
+    MsgInfo('请选择需要删除的数据');
     return;
   }
-  koiMsgBox('您确认需要进行批量删除么？')
+  MsgBox('您确认需要进行批量删除么？')
     .then(async () => {
       try {
         // console.log("ids", ids.value);
         await batchDelete(ids.value);
         handleTableData();
-        koiNoticeSuccess('批量删除成功');
+        NoticeSuccess('批量删除成功');
       } catch (error) {
         console.log(error);
-        koiNoticeError('批量删除失败，请刷新重试');
+        NoticeError('批量删除失败，请刷新重试');
         handleTableData();
       }
     })
     .catch(() => {
-      koiMsgError('已取消');
+      MsgError('已取消');
     });
 };
 
@@ -219,7 +216,7 @@ const handleBatchDelete = () => {
 const handleView = async (row: any) => {
   const id = row.operId;
   if (!id) {
-    koiMsgError('请传递需要查询的条件');
+    MsgError('请传递需要查询的条件');
   }
   // 重置表单
   resetForm();
@@ -231,13 +228,13 @@ const handleView = async (row: any) => {
     form.value = res.data;
   } catch (error) {
     console.log(error);
-    koiNoticeError('数据查询失败，请刷新重试');
+    NoticeError('数据查询失败，请刷新重试');
   }
-  koiDialogRef.value.koiOpen();
+  dialogRef.value.open();
 };
 
 // 添加 OR 修改对话框Ref
-const koiDialogRef = ref();
+const dialogRef = ref();
 /** 打开Dialog操作 */
 const title = ref('描述列表');
 
@@ -265,8 +262,8 @@ const resetForm = () => {
 </script>
 
 <template>
-  <div class="koi-flex">
-    <KoiCard>
+  <div class="vault-flex">
+    <VaultCard>
       <!-- 搜索条件 -->
       <ElForm v-show="showSearch" :inline="true">
         <ElFormItem label="操作名称" prop="operName">
@@ -318,7 +315,7 @@ const resetForm = () => {
         <ElCol v-auth="['system:role:delete']" :span="1.5">
           <ElButton type="danger" icon="delete" plain :disabled="multiple" @click="handleBatchDelete()">删除</ElButton>
         </ElCol>
-        <KoiToolbar v-model:show-search="showSearch" @refresh-table="handleListPage"></KoiToolbar>
+        <VaultToolbar v-model:show-search="showSearch" @refresh-table="handleListPage"></VaultToolbar>
       </ElRow>
 
       <div class="h-20px"></div>
@@ -436,7 +433,7 @@ const resetForm = () => {
         @current-change="handleListPage"
       />
 
-      <KoiDialog ref="koiDialogRef" :title="title" top="6vh" :height="660" :width="800" :footer-hidden="true">
+      <VaultDialog ref="dialogRef" :title="title" top="6vh" :height="660" :width="800" :footer-hidden="true">
         <template #content>
           <!-- 描述列表 -->
           <ElDescriptions direction="vertical" :column="3" border>
@@ -454,8 +451,8 @@ const resetForm = () => {
             <ElDescriptionsItem label="返回数据" :span="3">{{ form.jsonResult }}</ElDescriptionsItem>
           </ElDescriptions>
         </template>
-      </KoiDialog>
-    </KoiCard>
+      </VaultDialog>
+    </VaultCard>
   </div>
 </template>
 

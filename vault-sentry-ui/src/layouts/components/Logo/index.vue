@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { CircleCloseFilled } from '@element-plus/icons-vue';
 import settings from '@/settings';
 import logoUrl from '@/assets/images/logo/logo.webp';
 
 // 接收父组件传递的参数
-const props = defineProps({
-  isCollapse: {
-    require: false, // true显示，false隐藏
-    type: Boolean
-  },
-  layout: {
-    require: 'vertical', // 布局模式[纵向：vertical | 分栏：columns | 经典：classic | 上左：optimum | 横向：horizontal]
-    type: String
-  }
-});
+const props = defineProps<{
+  isCollapse: boolean;
+  layout: string;
+}>();
 
 const titleSize = ref(`${settings.loginTitleSize}px`);
 const showLogo = ref(settings.logoShow);
@@ -90,9 +85,8 @@ const titleStyle = computed(() => {
         class="select-none truncate"
         :class="titleClass"
         :style="titleStyle"
-        v-text="VaultSentry"
-      >
-      </div>
+        v-text="'VaultSentry'"
+      ></div>
     </ElTooltip>
   </div>
 </template>

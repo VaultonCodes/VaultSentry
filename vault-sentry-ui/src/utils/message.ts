@@ -150,13 +150,7 @@ export function MsgSuccess(
 }
 
 /** 封装提示信息，默认error */
-export function MsgError(
-  message: any,
-  plain = true,
-  duration = 2000,
-  type: MessageType = 'error',
-  parseHtml = false
-) {
+export function MsgError(message: any, plain = true, duration = 2000, type: MessageType = 'error', parseHtml = false) {
   ElMessage.closeAll();
   ElMessage({
     message,

@@ -20,7 +20,7 @@ interface IDrawerProps {
 // 子组件接收父组件的值
 // withDefaults：设置默认值  defineProps：接收父组件的参数
 const props = withDefaults(defineProps<IDrawerProps>(), {
-  title: 'KoiDrawer',
+  title: 'Drawer',
   visible: false,
   size: '450',
   closeOnClickModel: false,
@@ -93,12 +93,12 @@ onUnmounted(() => {
 });
 
 /** 打开抽屉 */
-const koiOpen = () => {
+const open = () => {
   visible.value = true;
 };
 
 /** 关闭抽屉 */
-const koiClose = () => {
+const close = () => {
   if (!props.closeOnClickModel) {
     ElMessageBox.confirm('您确认进行关闭么？', '温馨提示：', {
       confirmButtonText: '确认',
@@ -107,10 +107,10 @@ const koiClose = () => {
     })
       .then(() => {
         visible.value = false;
-        koiMsgWarning('已关闭');
+        MsgWarning('已关闭');
       })
       .catch(() => {
-        koiMsgWarning('已取消');
+        MsgWarning('已取消');
       });
   } else {
     visible.value = false;
@@ -118,30 +118,30 @@ const koiClose = () => {
 };
 
 /** 确认提交后关闭抽屉 */
-const koiQuickClose = () => {
+const quickClose = () => {
   visible.value = false;
 };
 
 /** 确认 */
-const koiConfirm = () => {
-  emits('koiConfirm');
+const confirm = () => {
+  emits('confirm');
 };
 
 // 关闭抽屉
-const koiCancel = () => {
-  emits('koiCancel');
+const cancel = () => {
+  emits('cancel');
 };
 
 // 当前组件获取父组件传递的事件方法，然后点击确认和提交是触发父组件传递过来的事件
-const emits = defineEmits(['koiConfirm', 'koiCancel']);
+const emits = defineEmits(['confirm', 'cancel']);
 
 // defineExpose是vue3添加的一个api，放在<script setup>下使用的，
 // 目的是把属性和方法暴露出去，可以用于父子组件通信，子组件把属性暴露出去，
 // 父组件用ref获取子组件DOM，子组件暴露的方法或属性可以用dom获取。
 defineExpose({
-  koiOpen,
-  koiClose,
-  koiQuickClose
+  open,
+  close,
+  quickClose
 });
 </script>
 
@@ -154,7 +154,7 @@ defineExpose({
       :direction="direction"
       :close-on-click-modal="closeOnClickModel"
       :destroy-on-close="destroyOnClose"
-      :before-close="koiClose"
+      :before-close="close"
       :loading="loading"
       :footer-hidden="footerHidden"
     >
@@ -163,10 +163,10 @@ defineExpose({
           <slot name="content"></slot>
         </div>
         <div v-if="!footerHidden" class="footer">
-          <ElButton v-throttle="koiConfirm" type="primary" loading-icon="Eleme" :loading="confirmLoading">
+          <ElButton v-throttle="confirm" type="primary" loading-icon="Eleme" :loading="confirmLoading">
             {{ confirmText || '确认' }}
           </ElButton>
-          <ElButton type="danger" @click="koiCancel">{{ cancelText || '取消' }}</ElButton>
+          <ElButton type="danger" @click="cancel">{{ cancelText || '取消' }}</ElButton>
         </div>
       </div>
     </ElDrawer>

@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import type { UploadRawFile } from 'element-plus';
 import { ElNotification } from 'element-plus';
 import { Download } from '@element-plus/icons-vue';
-import koi from '@/utils/axios.ts';
+import request from '@/utils/axios.ts';
 
 export interface IExcelParamsProps {
   title: string; // 标题
@@ -23,7 +23,7 @@ const xlsFile = 'application/vnd.ms-excel';
 const xlsxFile = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 // 父组件传过来的参数
-const koiParams = ref<IExcelParamsProps>({
+const params = ref<IExcelParamsProps>({
   title: '上传Excel',
   fileType: `${xlsFile},${xlsxFile}`,
   fileSize: 5,
@@ -33,7 +33,7 @@ const koiParams = ref<IExcelParamsProps>({
 
 /** 接收父组件参数 */
 const excelParams = (params: IExcelParamsProps) => {
-  koiParams.value = { ...koiParams.value, ...params };
+  params.value = { ...params.value, ...params };
   dialogVisible.value = true;
   // alert(params.value.importApi);
 };
@@ -51,7 +51,7 @@ const handleHttpUpload = async (param: any) => {
   // alert(koiParams.value.importApi);
   const fileFormData = new FormData();
   fileFormData.append('file', param.file, param.file.name);
-  const res: any = await koi.post(koiParams.value.importApi, fileFormData);
+  const res: any = await request.post(koiParams.value.importApi, fileFormData);
   if (res?.status != 200 && res?.code != 200) {
     ElNotification({
       title: '温馨提示',

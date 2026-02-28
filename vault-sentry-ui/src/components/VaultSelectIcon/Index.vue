@@ -86,7 +86,7 @@ const handleIconSelect = (iconItem: string) => {
         clearable
       >
         <template #append>
-          <KoiGlobalIcon v-if="modelValue" :name="modelValue" />
+          <VaultGlobalIcon v-if="modelValue" :name="modelValue" />
           <span v-else></span>
         </template>
       </ElInput>
@@ -98,7 +98,7 @@ const handleIconSelect = (iconItem: string) => {
             <div class="flex flex-wrap">
               <div v-for="(iconItem, iconIndex) in item.icons" :key="iconIndex" class="m-1">
                 <ElButton @click="handleIconSelect(iconItem)">
-                  <KoiGlobalIcon :name="iconItem" size="18" />
+                  <VaultGlobalIcon :name="iconItem" size="18" />
                 </ElButton>
               </div>
             </div>

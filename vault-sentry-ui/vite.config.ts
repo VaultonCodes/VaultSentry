@@ -1,17 +1,21 @@
-import { defineConfig, loadEnv, ConfigEnv, UserConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
+import path from 'node:path';
+import type { ConfigEnv, UserConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
+import vue from '@vitejs/plugin-vue';
 // keepAlive 组件name
-import vueSetupExtend from "vite-plugin-vue-setup-extend";
+import vueSetupExtend from 'vite-plugin-vue-setup-extend';
 // 引入svg需要的插件
-import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
-import Unocss from "unocss/vite";
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+import { viteMockServe } from 'vite-plugin-mock';
 // 数据mock配置
-import { viteMockServe } from "vite-plugin-mock";
 // gzip压缩
-import viteCompression from "vite-plugin-compression";
+import viteCompression from 'vite-plugin-compression';
 // 图片压缩
-import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
-import path from "path";
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+import Unocss from 'unocss/vite';
+import AutoImport from 'unplugin-auto-import/vite';
+import Components from 'unplugin-vue-components/vite';
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 
 // https://vitejs.dev/config/
 // 配置mock根据官网，这里写法将改成箭头函数
@@ -26,26 +30,36 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
       ViteImageOptimizer(),
       createSvgIconsPlugin({
         // 配置SVG图片
-        iconDirs: [path.resolve(process.cwd(), "src/assets/icons")],
-        symbolId: "icon-[dir]-[name]"
+        iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
+        symbolId: 'icon-[dir]-[name]'
       }),
       // 配置mock
       viteMockServe({
         // 解析根目录下的mock文件夹
-        mockPath: "mock",
-        // 开发环境启用 mock
-        enable: command === "serve",
+        mockPath: 'mock',
+        // 根据环境变量启用 mock
+        enable: command === 'serve' && env.VITE_USE_MOCK === 'true',
         // 监视文件更改，更改 mock 文件时不需要重新启动编译
         watchFiles: true,
         // 是否在控制台显示请求日志[开发环境推荐开启，方便调试]
         logger: true
+      }),
+      AutoImport({
+        resolvers: [ElementPlusResolver()],
+        dts: path.resolve('./src/types/auto-import.d.ts')
+      }),
+      Components({
+        resolvers: [ElementPlusResolver()],
+        dts: path.resolve('./src/types/components.d.ts'),
+        directoryAsNamespace: true,
+        globalNamespaces: ['Vault']
       })
     ],
     resolve: {
       // 配置路径别名
       alias: {
-        "@": path.resolve("./src"), // 相对路径别名配置，使用 @ 代替 src
-        "~": path.resolve("./src")
+        '@': path.resolve('./src'), // 相对路径别名配置，使用 @ 代替 src
+        '~': path.resolve('./src')
       }
     },
     css: {
@@ -57,7 +71,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
       }
     },
     server: {
-      host: "0.0.0.0", // 允许本机IP访问 0.0.0.0
+      host: '0.0.0.0', // 允许本机IP访问 0.0.0.0
       port: 5730, // 端口号
       hmr: true, // 热更新
       open: true, // 自动打开
@@ -66,7 +80,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
         [env.VITE_WEB_BASE_API]: {
           // 配置哪个环境下的
           target: env.VITE_SERVER,
-          rewrite: path => path.replace(new RegExp("^" + env.VITE_WEB_BASE_API), ""), // 路径重写，例如：将路径中包含dev-api字段替换为空。注意：只有请求真实后端接口才会有用，使用mock接口还是得带vault
+          rewrite: path => path.replace(new RegExp(`^${env.VITE_WEB_BASE_API}`), ''), // 路径重写，例如：将路径中包含dev-api字段替换为空。注意：只有请求真实后端接口才会有用，使用mock接口还是得带vault
           // 允许跨域
           changeOrigin: true
         }
@@ -74,88 +88,88 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
     },
     esbuild: {
       // 在生产环境全部去除console 和 debugger
-      drop: env.VITE_DROP_CONSOLE.length < 5 ? ["console", "debugger"] : []
+      drop: env.VITE_DROP_CONSOLE.length < 5 ? ['console', 'debugger'] : []
     },
     // 预编译，增加访问速度，针对node_modules
     optimizeDeps: {
       include: [
-        "vue",
-        "vue-router",
-        "pinia",
-        "axios",
-        "@vueuse/core",
-        "echarts",
-        "sortablejs",
-        "element-plus/es/components/form/style/css",
-        "element-plus/es/components/form-item/style/css",
-        "element-plus/es/components/button/style/css",
-        "element-plus/es/components/input/style/css",
-        "element-plus/es/components/input-number/style/css",
-        "element-plus/es/components/switch/style/css",
-        "element-plus/es/components/upload/style/css",
-        "element-plus/es/components/menu/style/css",
-        "element-plus/es/components/col/style/css",
-        "element-plus/es/components/icon/style/css",
-        "element-plus/es/components/row/style/css",
-        "element-plus/es/components/tag/style/css",
-        "element-plus/es/components/dialog/style/css",
-        "element-plus/es/components/loading/style/css",
-        "element-plus/es/components/radio/style/css",
-        "element-plus/es/components/radio-group/style/css",
-        "element-plus/es/components/popover/style/css",
-        "element-plus/es/components/scrollbar/style/css",
-        "element-plus/es/components/tooltip/style/css",
-        "element-plus/es/components/dropdown/style/css",
-        "element-plus/es/components/dropdown-menu/style/css",
-        "element-plus/es/components/dropdown-item/style/css",
-        "element-plus/es/components/sub-menu/style/css",
-        "element-plus/es/components/menu-item/style/css",
-        "element-plus/es/components/divider/style/css",
-        "element-plus/es/components/card/style/css",
-        "element-plus/es/components/link/style/css",
-        "element-plus/es/components/breadcrumb/style/css",
-        "element-plus/es/components/breadcrumb-item/style/css",
-        "element-plus/es/components/table/style/css",
-        "element-plus/es/components/tree-select/style/css",
-        "element-plus/es/components/table-column/style/css",
-        "element-plus/es/components/select/style/css",
-        "element-plus/es/components/option/style/css",
-        "element-plus/es/components/pagination/style/css",
-        "element-plus/es/components/tree/style/css",
-        "element-plus/es/components/alert/style/css",
-        "element-plus/es/components/radio-button/style/css",
-        "element-plus/es/components/checkbox-group/style/css",
-        "element-plus/es/components/checkbox/style/css",
-        "element-plus/es/components/tabs/style/css",
-        "element-plus/es/components/tab-pane/style/css",
-        "element-plus/es/components/rate/style/css",
-        "element-plus/es/components/date-picker/style/css",
-        "element-plus/es/components/notification/style/css",
-        "element-plus/es/components/image/style/css",
-        "element-plus/es/components/statistic/style/css",
-        "element-plus/es/components/watermark/style/css",
-        "element-plus/es/components/config-provider/style/css",
-        "element-plus/es/components/text/style/css",
-        "element-plus/es/components/drawer/style/css",
-        "element-plus/es/components/color-picker/style/css",
-        "element-plus/es/components/backtop/style/css",
-        "element-plus/es/components/message-box/style/css",
-        "element-plus/es/components/skeleton/style/css",
-        "element-plus/es/components/skeleton-item/style/css",
-        "element-plus/es/components/badge/style/css",
-        "element-plus/es/components/steps/style/css",
-        "element-plus/es/components/step/style/css",
-        "element-plus/es/components/avatar/style/css",
-        "element-plus/es/components/descriptions/style/css",
-        "element-plus/es/components/descriptions-item/style/css",
-        "element-plus/es/components/progress/style/css",
-        "element-plus/es/components/image-viewer/style/css",
-        "element-plus/es/components/empty/style/css",
-        "element-plus/es/components/segmented/style/css",
-        "element-plus/es/components/calendar/style/css",
-        "element-plus/es/components/message/style/css",
-        "element-plus/es/components/timeline/style/css",
-        "element-plus/es/components/timeline-item/style/css"
+        'vue',
+        'vue-router',
+        'pinia',
+        'axios',
+        '@vueuse/core',
+        'echarts',
+        'sortablejs',
+        'element-plus/es/components/form/style/css',
+        'element-plus/es/components/form-item/style/css',
+        'element-plus/es/components/button/style/css',
+        'element-plus/es/components/input/style/css',
+        'element-plus/es/components/input-number/style/css',
+        'element-plus/es/components/switch/style/css',
+        'element-plus/es/components/upload/style/css',
+        'element-plus/es/components/menu/style/css',
+        'element-plus/es/components/col/style/css',
+        'element-plus/es/components/icon/style/css',
+        'element-plus/es/components/row/style/css',
+        'element-plus/es/components/tag/style/css',
+        'element-plus/es/components/dialog/style/css',
+        'element-plus/es/components/loading/style/css',
+        'element-plus/es/components/radio/style/css',
+        'element-plus/es/components/radio-group/style/css',
+        'element-plus/es/components/popover/style/css',
+        'element-plus/es/components/scrollbar/style/css',
+        'element-plus/es/components/tooltip/style/css',
+        'element-plus/es/components/dropdown/style/css',
+        'element-plus/es/components/dropdown-menu/style/css',
+        'element-plus/es/components/dropdown-item/style/css',
+        'element-plus/es/components/sub-menu/style/css',
+        'element-plus/es/components/menu-item/style/css',
+        'element-plus/es/components/divider/style/css',
+        'element-plus/es/components/card/style/css',
+        'element-plus/es/components/link/style/css',
+        'element-plus/es/components/breadcrumb/style/css',
+        'element-plus/es/components/breadcrumb-item/style/css',
+        'element-plus/es/components/table/style/css',
+        'element-plus/es/components/tree-select/style/css',
+        'element-plus/es/components/table-column/style/css',
+        'element-plus/es/components/select/style/css',
+        'element-plus/es/components/option/style/css',
+        'element-plus/es/components/pagination/style/css',
+        'element-plus/es/components/tree/style/css',
+        'element-plus/es/components/alert/style/css',
+        'element-plus/es/components/radio-button/style/css',
+        'element-plus/es/components/checkbox-group/style/css',
+        'element-plus/es/components/checkbox/style/css',
+        'element-plus/es/components/tabs/style/css',
+        'element-plus/es/components/tab-pane/style/css',
+        'element-plus/es/components/rate/style/css',
+        'element-plus/es/components/date-picker/style/css',
+        'element-plus/es/components/notification/style/css',
+        'element-plus/es/components/image/style/css',
+        'element-plus/es/components/statistic/style/css',
+        'element-plus/es/components/watermark/style/css',
+        'element-plus/es/components/config-provider/style/css',
+        'element-plus/es/components/text/style/css',
+        'element-plus/es/components/drawer/style/css',
+        'element-plus/es/components/color-picker/style/css',
+        'element-plus/es/components/backtop/style/css',
+        'element-plus/es/components/message-box/style/css',
+        'element-plus/es/components/skeleton/style/css',
+        'element-plus/es/components/skeleton-item/style/css',
+        'element-plus/es/components/badge/style/css',
+        'element-plus/es/components/steps/style/css',
+        'element-plus/es/components/step/style/css',
+        'element-plus/es/components/avatar/style/css',
+        'element-plus/es/components/descriptions/style/css',
+        'element-plus/es/components/descriptions-item/style/css',
+        'element-plus/es/components/progress/style/css',
+        'element-plus/es/components/image-viewer/style/css',
+        'element-plus/es/components/empty/style/css',
+        'element-plus/es/components/segmented/style/css',
+        'element-plus/es/components/calendar/style/css',
+        'element-plus/es/components/message/style/css',
+        'element-plus/es/components/timeline/style/css',
+        'element-plus/es/components/timeline-item/style/css'
       ]
     }
   };

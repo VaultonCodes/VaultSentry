@@ -85,12 +85,12 @@ onUnmounted(() => {
 });
 
 /** 打开对话框 */
-const koiOpen = () => {
+const open = () => {
   visible.value = true;
 };
 
 /** 取消对话框 */
-const koiClose = () => {
+const close = () => {
   if (!props.closeOnClickModel) {
     ElMessageBox.confirm('您确认进行关闭么？', '温馨提升', {
       confirmButtonText: '确认',
@@ -110,28 +110,28 @@ const koiClose = () => {
 };
 
 /** 确认提交后关闭对话框 */
-const koiQuickClose = () => {
+const quickClose = () => {
   visible.value = false;
 };
 
 // 当前组件获取父组件传递的事件方法
-const emits = defineEmits(['koiConfirm', 'koiCancel']);
+const emits = defineEmits(['confirm', 'cancel']);
 
 /** 对话框确定事件 */
-const koiConfirm = () => {
-  emits('koiConfirm');
+const confirm = () => {
+  emits('confirm');
 };
 
 /** 对话框的取消事件 */
-const koiCancel = () => {
-  emits('koiCancel');
+const cancel = () => {
+  emits('cancel');
 };
 
 /** 暴露给父组件方法 */
 defineExpose({
-  koiOpen,
-  koiClose,
-  koiQuickClose
+  open,
+  close,
+  quickClose
 });
 </script>
 
@@ -147,7 +147,7 @@ defineExpose({
     append-to-body
     draggable
     :destroy-on-close="destroyOnClose"
-    :before-close="koiClose"
+    :before-close="close"
     :fullscreen="fullscreen"
     :loading="loading"
     :footer-hidden="footerHidden"
@@ -159,10 +159,10 @@ defineExpose({
     </div>
     <template v-if="!footerHidden" #footer>
       <span class="dialog-footer">
-        <ElButton v-throttle="koiConfirm" type="primary" loading-icon="Eleme" :loading="confirmLoading">
+        <ElButton v-throttle="confirm" type="primary" loading-icon="Eleme" :loading="confirmLoading">
           {{ confirmText || '确认' }}
         </ElButton>
-        <ElButton type="danger" @click="koiCancel">{{ cancelText || '取消' }}</ElButton>
+        <ElButton type="danger" @click="cancel">{{ cancelText || '取消' }}</ElButton>
       </span>
     </template>
   </ElDialog>

@@ -15,7 +15,7 @@ import { useDict } from '@/hooks/dicts/index.ts';
 import { MsgBox, MsgError, MsgInfo, MsgWarning, NoticeError, NoticeSuccess } from '@/utils/message.ts';
 import { handleTree } from '@/utils/index.ts';
 
-const { koiDicts } = useDict(['sys_menu_type']);
+const { dicts } = useDict(['sys_menu_type']);
 // 表格加载动画Loading
 const loading = ref(false);
 // 是否显示搜索表单[默认显示]
@@ -161,7 +161,7 @@ const handleTreeList = async () => {
   //   loading.value = false;
   // } catch (error) {
   //   console.log(error);
-  //   koiNoticeError("数据查询失败，请刷新重试");
+  //   NoticeError("数据查询失败，请刷新重试");
   // }
 };
 
@@ -174,7 +174,7 @@ const handleTableData = async () => {
     tableList.value = handleTree(res.data, 'menuId');
   } catch (error) {
     console.log(error);
-    koiNoticeError('数据查询失败，请刷新重试');
+    NoticeError('数据查询失败，请刷新重试');
   }
 };
 
@@ -248,7 +248,7 @@ const handleCascader = async () => {
     });
   } catch (error) {
     console.log(error);
-    koiMsgError('菜单级联数据查询失败，请重试');
+    MsgError('菜单级联数据查询失败，请重试');
   }
 };
 
@@ -269,8 +269,8 @@ const toggleExpandAll = () => {
 /** 添加 */
 const handleAdd = () => {
   // 打开对话框
-  koiDialogRef.value.koiOpen();
-  koiNoticeSuccess('添加');
+  dialogRef.value.open();
+  NoticeSuccess('添加');
   // 重置表单
   resetForm();
   // 重置图标
@@ -284,7 +284,7 @@ const handleAdd = () => {
 /** 回显数据 */
 const handleEcho = async (id: any) => {
   if (id == null || id == '') {
-    koiMsgWarning('请选择需要修改的数据');
+    MsgWarning('请选择需要修改的数据');
     return;
   }
   try {
@@ -293,22 +293,22 @@ const handleEcho = async (id: any) => {
     form.value = res.data;
   } catch (error) {
     console.log(error);
-    koiNoticeError('数据获取失败，请刷新重试');
+    NoticeError('数据获取失败，请刷新重试');
   }
 };
 
 /** 修改 */
 const handleUpdate = async (row?: any) => {
   // 打开对话框
-  koiDialogRef.value.koiOpen();
-  koiNoticeSuccess('修改');
+  dialogRef.value.open();
+  NoticeSuccess('修改');
   // 重置表单
   resetForm();
   // 标题
   title.value = '菜单修改';
   const id = row ? row.menuId : ids.value[0];
   if (id == null || id == '') {
-    koiMsgError('请选择需要修改的数据');
+    MsgError('请选择需要修改的数据');
   }
   handleCascader();
   // 回显数据
@@ -316,7 +316,7 @@ const handleUpdate = async (row?: any) => {
 };
 
 // 添加 OR 修改对话框Ref
-const koiDialogRef = ref();
+const dialogRef = ref();
 // 标题
 const title = ref('菜单管理');
 // form表单Ref
@@ -375,32 +375,32 @@ const handleConfirm = () => {
       if (form.value.menuId != null && form.value.menuId != '') {
         try {
           await update(form.value);
-          koiNoticeSuccess('修改成功');
+          NoticeSuccess('修改成功');
           confirmLoading.value = false;
-          koiDialogRef.value.koiQuickClose();
+          dialogRef.value.quickClose();
           resetForm();
           handleTreeList();
         } catch (error) {
           console.log(error);
           confirmLoading.value = false;
-          koiNoticeError('修改失败，请刷新重试');
+          NoticeError('修改失败，请刷新重试');
         }
       } else {
         try {
           await add(form.value);
-          koiNoticeSuccess('添加成功');
+          NoticeSuccess('添加成功');
           confirmLoading.value = false;
-          koiDialogRef.value.koiQuickClose();
+          dialogRef.value.quickClose();
           resetForm();
           handleTreeList();
         } catch (error) {
           console.log(error);
           confirmLoading.value = false;
-          koiNoticeError('添加失败，请刷新重试');
+          NoticeError('添加失败，请刷新重试');
         }
       }
     } else {
-      koiMsgError('验证失败，请检查填写内容');
+      MsgError('验证失败，请检查填写内容');
       confirmLoading.value = false;
     }
   });
@@ -408,44 +408,44 @@ const handleConfirm = () => {
 
 /** 取消 */
 const handleCancel = () => {
-  koiDialogRef.value.koiClose();
+  dialogRef.value.close();
 };
 
 /** 状态开关 */
 const handleSwitch = (row: any) => {
   const text = row.menuStatus === '1' ? '启用' : '停用';
-  koiMsgBox(`确认要[${text}]-[${row.menuName}]菜单吗？`)
+  MsgBox(`确认要[${text}]-[${row.menuName}]菜单吗？`)
     .then(async () => {
       if (!row.menuId || !row.menuStatus) {
-        koiMsgWarning('请选择需要修改的数据');
+        MsgWarning('请选择需要修改的数据');
         return;
       }
       try {
         await updateStatus(row.menuId, row.menuStatus);
-        koiNoticeSuccess('修改成功');
+        NoticeSuccess('修改成功');
       } catch (error) {
         console.log(error);
-        koiNoticeError('修改失败，请刷新重试');
+        NoticeError('修改失败，请刷新重试');
       }
     })
     .catch(() => {
-      koiMsgError('已取消');
+      MsgError('已取消');
     });
 };
 
 /** 是否展开 */
 const handleIsSpread = async (row: any) => {
   if (!row.menuId || !row.isSpread) {
-    koiMsgWarning('请选择需要展开的数据');
+    MsgWarning('请选择需要展开的数据');
     return;
   }
   try {
     await updateSpread(row.menuId, row.isSpread);
     handleTableData();
-    koiNoticeSuccess('操作成功');
+    NoticeSuccess('操作成功');
   } catch (error) {
     console.log(error);
-    koiNoticeError('操作失败，请刷新重试');
+    NoticeError('操作失败，请刷新重试');
   }
 };
 
@@ -453,48 +453,48 @@ const handleIsSpread = async (row: any) => {
 const handleDelete = (row: any) => {
   const id = row.menuId;
   if (id == null || id == '') {
-    koiMsgWarning('请选择需要删除的数据');
+    MsgWarning('请选择需要删除的数据');
     return;
   }
-  koiMsgBox(`您确认需要删除菜单名称[${row.menuName}]么？`)
+  MsgBox(`您确认需要删除菜单名称[${row.menuName}]么？`)
     .then(async () => {
       try {
         await deleteById(id);
-        koiNoticeSuccess('删除成功');
+        NoticeSuccess('删除成功');
         handleTableData();
       } catch (error) {
         console.log(error);
       }
     })
     .catch(() => {
-      koiMsgError('已取消');
+      MsgError('已取消');
     });
 };
 
 /** 批量删除 */
 const handleBatchDelete = () => {
   if (ids.value.length == 0) {
-    koiMsgInfo('请选择需要删除的数据');
+    MsgInfo('请选择需要删除的数据');
     return;
   }
-  koiMsgBox('您确认需要进行批量删除么？删除后将无法进行恢复？')
+  MsgBox('您确认需要进行批量删除么？删除后将无法进行恢复？')
     .then(async () => {
       try {
         await batchDelete(ids.value);
-        koiNoticeSuccess('批量删除成功');
+        NoticeSuccess('批量删除成功');
         handleTableData();
       } catch (error) {
         console.log(error);
       }
     })
     .catch(() => {
-      koiMsgError('已取消');
+      MsgError('已取消');
     });
 };
 </script>
 
 <template>
-  <div class="koi-flex">
+  <div class="vault-flex">
     <VaultCard>
       <!-- 搜索条件 -->
       <ElForm v-show="showSearch" :inline="true">
@@ -577,7 +577,7 @@ const handleBatchDelete = () => {
         ></ElTableColumn>
         <ElTableColumn label="菜单类型" prop="menuType" width="100px" align="center">
           <template #default="scope">
-            <KoiTag :tag-options="koiDicts.sys_menu_type" :value="scope.row.menuType"></KoiTag>
+            <VaultTag :tag-options="dicts.sys_menu_type" :value="scope.row.menuType"></VaultTag>
           </template>
         </ElTableColumn>
         <ElTableColumn label="展开/折叠" prop="isSpread" width="100px" align="center">
@@ -597,11 +597,11 @@ const handleBatchDelete = () => {
           <template #default="scope">
             <!-- 使用 is 属性绑定组件名称 -->
             <div class="flex flex-justify-center">
-              <ElIcon v-if="scope.row.icon && scope.row.icon.indexOf('koi-') == '-1'" :size="20">
+              <ElIcon v-if="scope.row.icon && scope.row.icon.indexOf('vault-') == '-1'" :size="20">
                 <component :is="scope.row.icon"></component>
               </ElIcon>
-              <ElIcon v-if="scope.row.icon && scope.row.icon.indexOf('koi-') == '0'" :size="20">
-                <component is="KoiSvgIcon" :name="scope.row.icon"></component>
+              <ElIcon v-if="scope.row.icon && scope.row.icon.indexOf('vault-') == '0'" :size="20">
+                <component is="VaultSvgIcon" :name="scope.row.icon"></component>
               </ElIcon>
             </div>
           </template>
@@ -676,13 +676,13 @@ const handleBatchDelete = () => {
         </ElTableColumn>
       </ElTable>
       <!-- 添加 OR 修改 -->
-      <KoiDialog
-        ref="koiDialogRef"
+      <VaultDialog
+        ref="dialogRef"
         :title="title"
         :loading="confirmLoading"
         :height="500"
-        @koi-confirm="handleConfirm"
-        @koi-cancel="handleCancel"
+        @confirm="handleConfirm"
+        @cancel="handleCancel"
       >
         <template #content>
           <ElForm ref="formRef" :rules="rules" :model="form" label-width="auto" status-icon>
@@ -718,12 +718,13 @@ const handleBatchDelete = () => {
                 <ElFormItem label="菜单类型" prop="menuType">
                   <ElRadioGroup v-model="form.menuType">
                     <ElRadio
-                      v-for="(item, index) in koiDicts.sys_menu_type"
+                      v-for="(item, index) in dicts.sys_menu_type"
                       :key="item.dictValue + index"
                       :value="item.dictValue"
                       border
-                      >{{ item.dictLabel }}</ElRadio
-                    </el-radio>
+                    >
+                      {{ item.dictLabel }}
+                    </ElRadio>
                   </ElRadioGroup>
                 </ElFormItem>
               </ElCol>
@@ -734,7 +735,7 @@ const handleBatchDelete = () => {
                 <div class="m-b-15px m-l-8px flex flex-items-center">
                   <ElFormItem prop="icon"></ElFormItem>
                   <div class="w-70px">菜单图标</div>
-                  <KoiSelectIcon v-model="form.icon" width="300"></KoiSelectIcon>
+                  <VaultSelectIcon v-model="form.icon" width="300"></VaultSelectIcon>
                 </div>
               </ElCol>
             </ElRow>
@@ -818,8 +819,8 @@ const handleBatchDelete = () => {
           </ElForm>
           {{ form }}
         </template>
-      </KoiDialog>
-    </KoiCard>
+      </VaultDialog>
+    </VaultCard>
   </div>
 </template>
 

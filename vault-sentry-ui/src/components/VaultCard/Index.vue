@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
-  isFlex: boolean;
+  isFlex?: boolean;
 }>();
 </script>
 

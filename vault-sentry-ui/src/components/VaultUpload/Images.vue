@@ -1,4 +1,4 @@
-<script setup lang="ts" name="KoiUploadImages">
+<script setup lang="ts" name="VaultUploadImages">
 import { computed, inject, ref, watch } from 'vue';
 import { ElLoading, formContextKey, formItemContextKey } from 'element-plus';
 import type { UploadFile, UploadProps, UploadRequestOptions, UploadUserFile } from 'element-plus';
@@ -62,10 +62,10 @@ watch(
 const beforeUpload: UploadProps['beforeUpload'] = rawFile => {
   const imgSize = rawFile.size / 1024 / 1024 < props.fileSize;
   const imgType = props.fileType.includes(rawFile.type);
-  if (!imgType) koiNoticeWarning('上传图片不符合所需的格式');
+  if (!imgType) NoticeWarning('上传图片不符合所需的格式');
   if (!imgSize)
     setTimeout(() => {
-      koiNoticeWarning(`上传图片大小不能超过 ${props.fileSize}M！`);
+      NoticeWarning(`上传图片大小不能超过 ${props.fileSize}M！`);
     }, 0);
   return imgType && imgSize;
 };
@@ -111,7 +111,7 @@ const uploadSuccess = (response: string | undefined, uploadFile: UploadFile) => 
   emit('update:fileList', _fileList.value);
   // 调用 el-form 内部的校验方法[可自动校验]
   formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
-  koiNoticeSuccess('图片上传成功');
+  NoticeSuccess('图片上传成功');
 };
 
 /**
@@ -125,12 +125,12 @@ const handleRemove = (file: UploadFile) => {
 
 /** 图片上传错误 */
 const uploadError = () => {
-  koiNoticeError('图片上传失败，请您重新上传');
+  NoticeError('图片上传失败，请您重新上传');
 };
 
 /** 文件数超出 */
 const handleExceed = () => {
-  koiNoticeWarning(`当前最多只能上传 ${props.limit} 张图片，请移除后上传！`);
+  NoticeWarning(`当前最多只能上传 ${props.limit} 张图片，请移除后上传！`);
 };
 
 /**

@@ -2,7 +2,7 @@
 import { computed, inject, ref, watch } from 'vue';
 import { ElLoading, formContextKey, formItemContextKey } from 'element-plus';
 import { MsgError, MsgWarning, NoticeError, NoticeSuccess } from '@/utils/message.ts';
-import koi from '@/utils/axios.ts';
+import request from '@/utils/axios.ts';
 
 const emits = defineEmits(['fileSuccess', 'fileRemove', 'update:fileList']);
 
@@ -28,7 +28,7 @@ const props = withDefaults(defineProps<IUploadFilesProps>(), {
   limit: 5,
   disabled: false,
   fileSize: 10,
-  action: '/koi/upload/file',
+  action: '/api/upload/file',
   fileList: [],
   isDownload: false,
   folderName: 'files',
@@ -58,7 +58,7 @@ watch(
 );
 
 const handleExceed = () => {
-  koiMsgWarning(`当前最多只能上传 ${props.limit} 个，请移除后上传！`);
+  MsgWarning(`当前最多只能上传 ${props.limit} 个，请移除后上传！`);
 };
 
 /** 文件变化handleChange 这里监听上传文件的变化上传一个，执行一下后端上传单个文件请求方法。 */
@@ -76,10 +76,10 @@ const handleChange = async (file: any) => {
   // 用于校验是否符合上传条件
   const type = props.acceptTypes.replace('/', ', ');
   if (isString.length < 1) {
-    koiMsgWarning(`仅支持格式为${type}的文件`);
+    MsgWarning(`仅支持格式为${type}的文件`);
     return false;
   } else if (rawFile.size / 1024 / 1024 > props.fileSize) {
-    koiMsgWarning(`文件大小不能超过${props.fileSize}MB!`);
+    MsgWarning(`文件大小不能超过${props.fileSize}MB!`);
     const arr = [...fileList.value];
     fileList.value = arr.filter((item: any) => {
       return item.uid != rawFile.uid;
@@ -101,7 +101,7 @@ const handleChange = async (file: any) => {
   const requestURL: string = props.action;
 
   // 文件上传
-  koi
+  request
     .upload(requestURL, formData)
     .then((res: any) => {
       loadingInstance.close();
@@ -114,7 +114,7 @@ const handleChange = async (file: any) => {
       emits('fileSuccess', fileMap);
       // 调用 el-form 内部的校验方法[可自动校验]
       formItemContext?.prop && formContext?.validateField([formItemContext.prop as string]);
-      koiNoticeSuccess('文件上传成功');
+      NoticeSuccess('文件上传成功');
     })
     .catch(error => {
       console.log('文件上传', error);
@@ -125,7 +125,7 @@ const handleChange = async (file: any) => {
       });
       emits('update:fileList', fileList.value);
       loadingInstance.close();
-      koiNoticeError('上传失败，亲，您的文件不支持上传');
+      NoticeError('上传失败，亲，您的文件不支持上传');
     });
 
   return true;
@@ -226,12 +226,12 @@ const handleRemove = (url: string) => {
 /** 下载文件 */
 const handleDownLoad = async (url: string, name: string) => {
   if (!url && !name) {
-    koiMsgError('文件获取失败，请刷新重试');
+    MsgError('文件获取失败，请刷新重试');
   }
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      koiMsgError('网络异常，请刷新重试');
+      MsgError('网络异常，请刷新重试');
       return;
     }
     // 创建 Blob 对象
@@ -252,7 +252,7 @@ const handleDownLoad = async (url: string, name: string) => {
     window.URL.revokeObjectURL(downloadUrl);
   } catch (error) {
     console.error('下载失败：', error);
-    koiNoticeError('下载失败，请刷新重试');
+    NoticeError('下载失败，请刷新重试');
   }
 };
 </script>

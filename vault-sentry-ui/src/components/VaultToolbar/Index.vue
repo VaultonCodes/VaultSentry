@@ -44,9 +44,9 @@ const isMaximize = computed(() => globalStore.maximize);
 </script>
 
 <template>
-  <!-- 使用方式：<KoiToolbar v-model:showSearch="showSearch" @refreshTable="handleTableData"></KoiToolbar> -->
+  <!-- 使用方式：<VaultToolbar v-model:showSearch="showSearch" @refreshTable="handleTableData"></VaultToolbar> -->
   <!-- 不显示全屏按钮 :showMaximize="false" -->
-  <div class="koi-toolbar">
+  <div class="vault-toolbar">
     <ElRow>
       <ElTooltip :content="showSearch ? '隐藏搜索' : '显示搜索'" placement="top">
         <ElButton circle icon="search" @click="toggleSearch()" />
@@ -63,7 +63,7 @@ const isMaximize = computed(() => globalStore.maximize);
 </template>
 
 <style lang="scss" scoped>
-.koi-toolbar {
+.vault-toolbar {
   margin-left: auto;
 }
 </style>

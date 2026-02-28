@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import { nextTick, onMounted, onUnmounted, reactive, ref } from 'vue';
+import { nextTick, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import type { FormInstance, FormRules } from 'element-plus';
-import { Lock, Open, User } from '@element-plus/icons-vue';
+import { Lock, User } from '@element-plus/icons-vue';
 import { HOME_URL, LOGIN_URL } from '@/config/index.ts';
 import { MsgError, MsgWarning } from '@/utils/message.ts';
-// import { login, getCaptcha } from "@/api/system/login/index.ts";
-import authLogin from '@/assets/json/authLogin.json';
+import { login } from "@/api";
 import logo from '@/assets/images/logo/logo.webp';
 import bg from '@/assets/images/login/bg.png';
 import useUserStore from '@/stores/modules/user.ts';
@@ -14,7 +13,6 @@ import useKeepAliveStore from '@/stores/modules/keepAlive.ts';
 import { initDynamicRouter } from '@/routers/modules/dynamicRouter.ts';
 import useTabsStore from '@/stores/modules/tabs.ts';
 import VaultDark from '@/layouts/components/Header/components/Dark.vue';
-import VaultLoading from './components/VaultLoading.vue';
 import VaultThemeColor from './components/VaultThemeColor.vue';
 
 const userStore = useUserStore();
@@ -27,17 +25,11 @@ const loading = ref(false);
 interface ILoginUser {
   loginName: string;
   password: string | number;
-  securityCode: string | number;
-  codeKey: string | number;
-  captchaPicture: any;
 }
 
 const loginForm = reactive<ILoginUser>({
   loginName: 'yuadmin',
-  password: 'yuadmin123',
-  securityCode: '1234',
-  codeKey: '',
-  captchaPicture: ''
+  password: 'yuadmin123'
 });
 
 const loginRules: any = reactive<FormRules<ILoginUser>>({
@@ -67,46 +59,8 @@ const loginRules: any = reactive<FormRules<ILoginUser>>({
       },
       trigger: 'blur'
     }
-  ],
-  securityCode: [{ required: true, message: '验证码不能为空', trigger: 'blur' }]
+  ]
 });
-
-/** 获取验证码 */
-const handleCaptcha = async () => {
-  userStore.setToken('');
-
-  // try {
-  //   const res: any = await getCaptcha();
-  //   loginForm.codeKey = res.data.codeKey;
-  //   loginForm.captchaPicture = res.data.captchaPicture;
-  // } catch (error) {
-  //   console.log(error);
-  //   MsgError('验证码获取失败');
-  // }
-};
-
-// const timer = ref();
-// // 验证码定时器
-// const getCaptchaTimer = () => {
-//   timer.value = setInterval(() => {
-//     // 执行刷新数据的方法
-//     handleCaptcha();
-//   }, 345 * 1000);
-// };
-
-// 进入页面加载管理员信息
-onMounted(() => {
-  // 获取验证码
-  handleCaptcha();
-  // 局部刷新定时器
-  // getCaptchaTimer();
-});
-
-// onUnmounted(() => {
-//   // 清除局部刷新定时器
-//   clearInterval(timer.value);
-//   timer.value = null;
-// });
 
 /** 登录 */
 const handleLogin = () => {
@@ -114,15 +68,12 @@ const handleLogin = () => {
   (loginFormRef.value as any).validate(async (valid: any, fields: any) => {
     const loginName = loginForm.loginName;
     const password = loginForm.password;
-    const securityCode = loginForm.securityCode;
-    const codeKey = loginForm.codeKey;
     if (valid) {
       try {
         loading.value = true;
         // 1、执行登录接口
-        // const res: any = await login({ loginName, password, codeKey, securityCode });
-        // userStore.setToken(res.data.tokenValue);
-        userStore.setToken(authLogin.data.tokenValue);
+        const res: any = await login({ loginName, password, securityCode: '1234' });
+        userStore.setToken(res.data.tokenValue);
 
         // 2、添加动态路由 AND 用户按钮 AND 角色信息 AND 用户个人信息
         if (userStore?.token) {
@@ -165,7 +116,7 @@ const handleLogin = () => {
       }
     } else {
       console.log('登录校验失败', fields);
-      MsgError('验证失败，请检查表单内容');
+      new MsgError('验证失败，请检查表单内容');
     }
   });
 };
@@ -232,25 +183,6 @@ const handleLogin = () => {
               :suffix-icon="Lock"
             />
           </ElFormItem>
-          <ElFormItem prop="securityCode">
-            <ElInput
-              v-model="loginForm.securityCode"
-              type="text"
-              placeholder="请输入验证码"
-              :suffix-icon="Open"
-              @keydown.enter="handleLogin"
-            ></ElInput>
-          </ElFormItem>
-          <ElFormItem>
-            <ElImage
-              class="h-30px w-100px border-1px border-[--el-border-color-light] rounded-4px border-solid"
-              :src="loginForm.captchaPicture"
-              @click="handleCaptcha"
-            />
-            <ElButton text size="small" class="m-l-6px" @click="handleCaptcha">
-              <div class="select-none text-gray-400 hover:text-[--el-color-primary]">看不清，换一张</div>
-            </ElButton>
-          </ElFormItem>
           <!-- 登录按钮 -->
           <ElFormItem>
             <ElButton
@@ -267,8 +199,6 @@ const handleLogin = () => {
         </ElForm>
       </ElCol>
     </ElRow>
-
-    <VaultLoading></VaultLoading>
   </div>
 </template>
 

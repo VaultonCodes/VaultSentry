@@ -1,4 +1,4 @@
-import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
+import type { RouteLocationNormalized } from 'vue-router';
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
 import { LOGIN_URL, ROUTER_WHITE_LIST } from '@/config/index.ts';
 import nprogress from '@/utils/nprogress';
@@ -47,7 +47,7 @@ export const resetRouter = () => {
 /**
  * @description 前置路由
  */
-router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized) => {
   const userStore = useUserStore();
   const authStore = useAuthStore();
 
@@ -60,30 +60,31 @@ router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormali
   if (to.path.toLocaleLowerCase() === LOGIN_URL) {
     // 有Token访问当前页面
     if (userStore.token) {
-      return next(from.fullPath);
+      return from.fullPath;
     }
     MsgWarning('账号身份已过期，请重新登录');
 
     // 没有Token重置路由到登陆页。
     resetRouter();
-    return next();
+    return;
   }
 
   // 4、判断访问页面是否在路由白名单地址[静态路由]中，如果存在直接放行。
-  if (ROUTER_WHITE_LIST.some((pattern: any) => isPathMatch(pattern, to.path))) return next();
+  if (ROUTER_WHITE_LIST.some((pattern: any) => isPathMatch(pattern, to.path))) {
+    return;
+  }
 
   // 5、判断是否有 Token，没有重定向到 login 页面。
-  if (!userStore.token) return next({ path: LOGIN_URL, replace: true });
+  if (!userStore.token) return { path: LOGIN_URL, replace: true };
 
   // 6、如果没有菜单列表[一级扁平化路由 OR 递归菜单路由数据判断是否存在都阔以]，就重新请求菜单列表并添加动态路由。
   if (!authStore.getMenuList.length) {
     // 注意：authStore.getMenuList，不能持久化菜单数据，否则这里一直有值，就不会走这里，而且持久化之后还会被篡改数据。
     // 获取相关菜单数据 && 按钮数据 && 角色数据[to.meta.roles获取角色信息进行判断] && 用户信息。
     await initDynamicRouter();
-    return next({ ...to, replace: true }); // ...to 保证路由添加完了再进入页面 (可以理解为重进一次) replace: true 重进一次, 不保留重复历史
+    return { ...to, replace: true }; // ...to 保证路由添加完了再进入页面 (可以理解为重进一次) replace: true 重进一次, 不保留重复历史
   }
   // 7、正常访问页面。
-  return next();
 });
 
 /**

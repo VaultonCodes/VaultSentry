@@ -1,4 +1,4 @@
-<script setup lang="ts" name="KoiUploadImage">
+<script setup lang="ts" name="VaultUploadImage">
 import { computed, inject, ref } from 'vue';
 import { ElLoading, ElNotification, formContextKey, formItemContextKey } from 'element-plus';
 import type { UploadProps, UploadRequestOptions } from 'element-plus';
